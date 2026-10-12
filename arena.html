@@ -80,6 +80,20 @@ function showSessionEnd(){clearTimers();document.getElementById('endTitle').text
 async function enableCamera(){const video=document.getElementById('camera');try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Akses kamera tidak tersedia. Pastikan halaman dibuka melalui HTTPS.');if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());setStatus('Meminta izin akses kamera...');cameraStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});video.srcObject=cameraStream;await video.play();document.getElementById('cameraMessage').classList.remove('show');document.getElementById('cameraButton').textContent='KAMERA AKTIF';setStatus('Kamera aktif. Arena siap dimainkan.')}catch(e){document.getElementById('cameraMessageText').textContent='Kamera gagal: '+(e.name||'Error')+'. '+(e.message||'Periksa izin kamera browser.');document.getElementById('cameraMessage').classList.add('show');setStatus('Kamera belum aktif. '+(e.name||''))}}
 function stopCamera(){if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}document.getElementById('camera').srcObject=null;document.getElementById('cameraButton').textContent='AKTIFKAN KAMERA';setStatus('Kamera dimatikan.')}
 function goHome(){stopCamera();clearTimers();location.href='index.html'}
+// Dukungan pointer presentasi: perangkat umumnya mengirim ArrowRight/PageDown dan ArrowLeft/PageUp.
+// Navigasi hanya berjalan saat tombol di layar sudah aktif, sehingga timer dan jeda pembahasan tetap dihormati.
+window.addEventListener('keydown',event=>{
+  if(event.altKey||event.ctrlKey||event.metaKey)return;
+  const target=event.target;
+  if(target&&(target.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(target.tagName)))return;
+  if(['ArrowRight','PageDown',' '].includes(event.key)){
+    const button=document.getElementById('nextButton');
+    if(!button.disabled){event.preventDefault();moveQuestion('next')}
+  }else if(['ArrowLeft','PageUp'].includes(event.key)){
+    const button=document.getElementById('previousButton');
+    if(!button.disabled){event.preventDefault();moveQuestion('previous')}
+  }
+});
 window.addEventListener('beforeunload',()=>{clearTimers();if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())});
 boot();
 </script>
