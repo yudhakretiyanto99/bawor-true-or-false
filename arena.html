@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arena BAWOR TRUE OR FALSE</title>
+  <style>
+    :root{--green:rgba(20,200,112,.43);--red:rgba(239,61,72,.43);--panel:rgba(9,15,27,.88);--white:#fff;--muted:#cbd5e1}
+    *{box-sizing:border-box}body{margin:0;background:#080d16;color:var(--white);font-family:Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+    .arena{min-height:100vh;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#111827}
+    #camera{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);z-index:0;background:#111827}
+    .shade{position:absolute;inset:0;z-index:1;background:rgba(4,9,18,.42);pointer-events:none}
+    .zones{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:1fr 1fr;pointer-events:none}
+    .zone{display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;font-weight:900;font-size:clamp(24px,4vw,56px);letter-spacing:2px;text-shadow:0 3px 15px rgba(0,0,0,.4)}
+    .zone.true{background:var(--green);border-right:2px solid rgba(255,255,255,.45)}.zone.false{background:var(--red)}
+    .content{position:relative;z-index:3;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px;gap:14px;pointer-events:none}
+    .topbar,.question,.controls,.message{pointer-events:auto}.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand,.counter{background:var(--panel);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 16px;backdrop-filter:blur(8px);font-weight:700}.brand{font-size:clamp(13px,2vw,18px)}.counter{font-size:14px;white-space:nowrap}
+    .question{width:min(820px,94%);margin:auto 0;background:var(--panel);border:1px solid rgba(255,255,255,.23);border-radius:24px;padding:clamp(22px,4vw,42px);text-align:center;backdrop-filter:blur(12px);box-shadow:0 16px 55px rgba(0,0,0,.24)}
+    .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#cbd5e1;margin-bottom:14px}#statement{font-size:clamp(22px,3.2vw,38px);line-height:1.4;font-weight:800;overflow-wrap:anywhere}
+    #status{color:#e2e8f0;font-size:14px;line-height:1.5;min-height:22px;margin-top:16px}.timer{font-size:clamp(34px,6vw,58px);font-weight:900;margin-top:12px;color:#fff}.explanation{display:none;text-align:left;margin-top:18px;padding:16px;border-radius:14px;background:rgba(255,255,255,.09);line-height:1.6}.explanation.show{display:block}.answer{font-weight:900;font-size:20px;margin-bottom:8px}
+    .controls{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;padding-bottom:8px}button{border:0;border-radius:12px;padding:13px 17px;font-weight:800;cursor:pointer;font-size:14px}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:#20c878;color:#062416}.secondary{background:#e2e8f0;color:#101827}.danger{background:#f05252;color:#fff}
+    .message{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(4,9,18,.9)}.message.show{display:flex}.message-card{width:min(500px,100%);padding:30px;background:#151f32;border:1px solid #42516a;border-radius:22px}.message-card h2{font-size:26px;margin:0 0 12px}.message-card p{color:#cbd5e1;line-height:1.6}
+    @media(max-width:600px){.content{padding:12px;gap:12px}.topbar{align-items:flex-start}.brand,.counter{padding:10px;font-size:12px}.question{width:98%;padding:22px 16px}.zone{font-size:21px;letter-spacing:0}.controls button{padding:12px 10px;font-size:12px}}
+  </style>
+</head>
+<body>
+<main class="arena">
+  <video id="camera" autoplay playsinline muted></video><div class="shade"></div>
+  <div class="zones"><div class="zone true">BENAR</div><div class="zone false">SALAH</div></div>
+  <div class="content">
+    <header class="topbar"><div class="brand">BAWOR TRUE OR FALSE</div><div class="counter" id="counter">SESI — · SOAL —/16</div></header>
+    <section class="question">
+      <div class="eyebrow" id="topic">Menghubungkan ke permainan...</div>
+      <div id="statement">Menyiapkan arena permainan.</div>
+      <div class="timer" id="timer">18</div>
+      <div id="status" role="status" aria-live="polite">Memuat soal.</div>
+      <div class="explanation" id="explanation"><div class="answer" id="answerText"></div><div id="explanationText"></div></div>
+    </section>
+    <nav class="controls">
+      <button class="secondary" onclick="goHome()">← HALAMAN UTAMA</button>
+      <button class="secondary" id="cameraButton" onclick="enableCamera()">AKTIFKAN KAMERA</button>
+      <button class="danger" onclick="stopCamera()">MATIKAN KAMERA</button>
+      <button class="secondary" id="previousButton" onclick="moveQuestion('previous')" disabled>← SOAL SEBELUMNYA</button>
+      <button class="primary" id="nextButton" onclick="moveQuestion('next')" disabled>SOAL BERIKUTNYA →</button>
+    </nav>
+  </div>
+  <section class="message" id="cameraMessage"><div class="message-card"><h2>Kamera belum aktif</h2><p id="cameraMessageText">Izinkan akses kamera pada browser atau pastikan perangkat memiliki kamera.</p><button class="primary" onclick="enableCamera()">COBA AKTIFKAN KAMERA</button></div></section>
+  <section class="message" id="endMessage"><div class="message-card"><h2 id="endTitle">Sesi selesai!</h2><p id="endText">Moderator dapat kembali ke halaman utama untuk memilih sesi lain.</p><button class="primary" onclick="goHome()">KEMBALI KE HALAMAN UTAMA</button></div></section>
+</main>
+<script>
+'use strict';
+const API_URL='https://script.google.com/macros/s/AKfycby_UilwjCTmn0tESffM_e0pH4HXDPSN-x0kDu6cxzMpGlMvGblN0OsaimsDtrUZQ99v2A/exec';
+const params=new URLSearchParams(location.search);const sessionNo=Number(params.get('session')||1);
+let cameraStream=null, navState=null, questionTimer=null, answerTimer=null, remainingSeconds=18, busy=false;
+function apiRequest(action,values={}){return new Promise((resolve,reject)=>{const callback='baworCallback_'+Date.now()+'_'+Math.random().toString(36).slice(2);const query=new URLSearchParams({api:'1',action,...Object.fromEntries(Object.entries(values).map(([k,v])=>[k,String(v)])),callback});const script=document.createElement('script');const timeout=setTimeout(()=>{cleanup();reject(new Error('Waktu permintaan API habis.'));},15000);function cleanup(){clearTimeout(timeout);delete window[callback];script.remove()}window[callback]=data=>{cleanup();resolve(data)};script.onerror=()=>{cleanup();reject(new Error('Tidak dapat terhubung ke server permainan.'))};script.src=API_URL+'?'+query.toString();document.body.appendChild(script)})}
+function setStatus(message){document.getElementById('status').textContent=message}
+function clearTimers(){if(questionTimer)clearInterval(questionTimer);if(answerTimer)clearInterval(answerTimer);questionTimer=null;answerTimer=null}
+function updateButtons(enabled){document.getElementById('previousButton').disabled=!enabled||Number(navState?.nomorSoal)<=1;document.getElementById('nextButton').disabled=!enabled}
+async function boot(){try{if(!Number.isInteger(sessionNo)||sessionNo<1||sessionNo>4)throw new Error('Nomor sesi tidak valid.');const health=await apiRequest('health');if(!health||!health.success)throw new Error('API permainan belum siap.');navState=await apiRequest('navigation');if(!navState||Number(navState.nomorSesi)!==sessionNo){throw new Error('Sesi belum dipilih atau tidak sesuai. Kembali ke halaman utama dan pilih sesi.')}await loadActiveQuestion()}catch(e){document.getElementById('topic').textContent='Koneksi belum siap';document.getElementById('statement').textContent='Arena belum dapat dimuat.';document.getElementById('timer').textContent='—';setStatus(e.message||'Gagal menghubungkan arena.')}}
+async function loadActiveQuestion(){clearTimers();busy=false;updateButtons(false);document.getElementById('explanation').classList.remove('show');document.getElementById('timer').style.display='block';document.getElementById('timer').textContent='18';try{navState=await apiRequest('navigation');if(navState.tahap==='SESI_SELESAI'){showSessionEnd();return}if(Number(navState.nomorSesi)!==sessionNo)throw new Error('Sesi aktif di server berbeda dengan sesi ini.');const result=await apiRequest('question',{session:sessionNo,number:navState.nomorSoal});if(!result||!result.success)throw new Error(result?.message||'Soal belum berhasil dimuat.');document.getElementById('topic').textContent=result.materi||'Bahasa Indonesia';document.getElementById('statement').textContent=result.pernyataan;document.getElementById('counter').textContent='SESI '+result.nomorSesi+' · SOAL '+result.nomorSoal+'/'+result.totalSoal;navState=await apiRequest('navigation');const start=Number(navState.waktuMulaiSoal);const now=Date.now();remainingSeconds=Math.max(0,Math.ceil((18000-(now-start))/1000));renderTimer();if(navState.tahap==='JAWABAN_DITAMPILKAN'){await showAnswer(true);return}setStatus('Pilih zona BENAR atau SALAH. Jawab dalam 15 detik, lalu transisi 3 detik.');renderTimer();questionTimer=setInterval(tickQuestion,250)}catch(e){setStatus(e.message||'Gagal memuat soal.');document.getElementById('timer').textContent='!';console.error(e)}}
+function renderTimer(){const el=document.getElementById('timer');if(remainingSeconds>3){el.textContent=String(remainingSeconds-3);el.style.color='#fff';setStatus('Waktu menjawab: '+(remainingSeconds-3)+' detik. Setelah itu transisi 3 detik.')}else if(remainingSeconds>0){el.textContent='TRANSISI '+remainingSeconds;el.style.color='#ffb4b4';setStatus('Transisi zona pilihan: '+remainingSeconds+' detik.')}else{el.textContent='0';el.style.color='#ffb4b4'}}
+function tickQuestion(){const start=Number(navState?.waktuMulaiSoal);if(!start){return}remainingSeconds=Math.max(0,Math.ceil((18000-(Date.now()-start))/1000));renderTimer();if(remainingSeconds<=0){clearInterval(questionTimer);questionTimer=null;revealNow()}}
+async function revealNow(){if(busy)return;busy=true;setStatus('Waktu habis. Menampilkan kunci jawaban dan pembahasan...');try{const result=await apiRequest('reveal');if(!result||!result.success){if(result?.code==='TOO_EARLY'){busy=false;setTimeout(revealNow,Math.max(300,result.sisaMs||500));return}throw new Error(result?.message||'Jawaban belum dapat dibuka.')}displayAnswer(result)}catch(e){busy=false;setStatus(e.message||'Gagal menampilkan jawaban.');console.error(e)}}
+async function showAnswer(recovering=false){try{const result=await apiRequest('reveal');if(result&&result.success){displayAnswer(result);return}if(result?.code==='TOO_EARLY'){remainingSeconds=Math.ceil((result.sisaMs||0)/1000);renderTimer();questionTimer=setInterval(tickQuestion,250);return}setStatus(result?.message||'Belum dapat mengambil jawaban.')}catch(e){setStatus(e.message||'Gagal mengambil jawaban.')}}
+function displayAnswer(result){clearTimers();busy=false;document.getElementById('timer').style.display='none';document.getElementById('answerText').textContent='KUNCI JAWABAN: '+result.kunciJawaban;document.getElementById('explanationText').textContent=result.pembahasan||'Tidak ada pembahasan untuk soal ini.';document.getElementById('explanation').classList.add('show');setStatus('Jawaban ditampilkan. Skor peserta dicatat moderator secara manual.');navState={...navState,tahap:'JAWABAN_DITAMPILKAN',nomorSoal:result.nomorSoal};let wait=5;document.getElementById('timer').style.display='block';document.getElementById('timer').textContent=String(wait);document.getElementById('timer').style.color='#20c878';updateButtons(false);answerTimer=setInterval(()=>{wait--;document.getElementById('timer').textContent=String(Math.max(0,wait));if(wait<=0){clearInterval(answerTimer);answerTimer=null;updateButtons(true);setStatus('Siap lanjut. Moderator dapat memilih soal berikutnya atau sebelumnya.')}},1000)}
+async function moveQuestion(direction){if(busy)return;busy=true;updateButtons(false);setStatus('Memproses perpindahan soal...');try{const result=await apiRequest(direction);if(!result||!result.success){throw new Error(result?.pesan||result?.message||'Perpindahan soal belum diizinkan.')}if(result.tahap==='SESI_SELESAI'){navState=result;showSessionEnd();return}navState=result;await loadActiveQuestion()}catch(e){setStatus(e.message||'Gagal berpindah soal.');updateButtons(true)}finally{busy=false}}
+function showSessionEnd(){clearTimers();document.getElementById('endTitle').textContent='SESI '+sessionNo+' SELESAI!';document.getElementById('endText').textContent='Semua 16 soal pada sesi ini telah selesai. Skor tetap dicatat moderator secara manual.';document.getElementById('endMessage').classList.add('show');setStatus('Sesi selesai.')}
+async function enableCamera(){const video=document.getElementById('camera');try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Akses kamera tidak tersedia. Pastikan halaman dibuka melalui HTTPS.');if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());setStatus('Meminta izin akses kamera...');cameraStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});video.srcObject=cameraStream;await video.play();document.getElementById('cameraMessage').classList.remove('show');document.getElementById('cameraButton').textContent='KAMERA AKTIF';setStatus('Kamera aktif. Arena siap dimainkan.')}catch(e){document.getElementById('cameraMessageText').textContent='Kamera gagal: '+(e.name||'Error')+'. '+(e.message||'Periksa izin kamera browser.');document.getElementById('cameraMessage').classList.add('show');setStatus('Kamera belum aktif. '+(e.name||''))}}
+function stopCamera(){if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}document.getElementById('camera').srcObject=null;document.getElementById('cameraButton').textContent='AKTIFKAN KAMERA';setStatus('Kamera dimatikan.')}
+function goHome(){stopCamera();clearTimers();location.href='index.html'}
+window.addEventListener('beforeunload',()=>{clearTimers();if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())});
+boot();
+</script>
+</body>
+</html>
