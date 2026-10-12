@@ -5,23 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena BAWOR TRUE OR FALSE</title>
   <style>
-    :root{--green:rgba(20,200,112,.43);--red:rgba(239,61,72,.43);--panel:rgba(9,15,27,.88);--white:#fff;--muted:#cbd5e1}
-    *{box-sizing:border-box}body{margin:0;background:#080d16;color:var(--white);font-family:Arial,sans-serif;min-height:100vh;overflow-x:hidden}
-    .arena{min-height:100vh;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#111827}
+    :root{--green:rgba(20,200,112,.42);--red:rgba(239,61,72,.42);--panel:rgba(8,18,35,.96);--white:#fff;--muted:#cbd5e1;--cyan:#38bdf8}
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;background:#07111f;color:var(--white);font-family:Arial,sans-serif;overflow:hidden}
+    .arena{height:100dvh;min-height:540px;width:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#111827}
     #camera{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);z-index:0;background:#111827}
-    .shade{position:absolute;inset:0;z-index:1;background:rgba(4,9,18,.42);pointer-events:none}
-    .zones{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:1fr 1fr;pointer-events:none}
-    .zone{display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;font-weight:900;font-size:clamp(24px,4vw,56px);letter-spacing:2px;text-shadow:0 3px 15px rgba(0,0,0,.4)}
-    .zone.true{background:var(--green);border-right:2px solid rgba(255,255,255,.45)}.zone.false{background:var(--red)}
-    .content{position:relative;z-index:3;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px;gap:14px;pointer-events:none}
-    .topbar,.question,.controls,.message{pointer-events:auto}.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand,.counter{background:var(--panel);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 16px;backdrop-filter:blur(8px);font-weight:700}.brand{font-size:clamp(13px,2vw,18px)}.counter{font-size:14px;white-space:nowrap}
-    .question{width:min(820px,94%);margin:auto 0;background:var(--panel);border:1px solid rgba(255,255,255,.23);border-radius:24px;padding:clamp(22px,4vw,42px);text-align:center;backdrop-filter:blur(12px);box-shadow:0 16px 55px rgba(0,0,0,.24)}
-    .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#cbd5e1;margin-bottom:14px}#statement{font-size:clamp(22px,3.2vw,38px);line-height:1.4;font-weight:800;overflow-wrap:anywhere}
-    #status{color:#e2e8f0;font-size:14px;line-height:1.5;min-height:22px;margin-top:16px}.timer{font-size:clamp(34px,6vw,58px);font-weight:900;margin-top:12px;color:#fff}.explanation{display:none;text-align:left;margin-top:18px;padding:16px;border-radius:14px;background:rgba(255,255,255,.09);line-height:1.6}.explanation.show{display:block}.answer{font-weight:900;font-size:20px;margin-bottom:8px}
-    .controls{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;padding-bottom:8px}button{border:0;border-radius:12px;padding:13px 17px;font-weight:800;cursor:pointer;font-size:14px}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:#20c878;color:#062416}.secondary{background:#e2e8f0;color:#101827}.danger{background:#f05252;color:#fff}
+    .shade{position:absolute;inset:0;z-index:1;background:rgba(4,9,18,.20);pointer-events:none}
+    /* Zona jawaban berada di area tengah-bawah, tidak tertutup panel soal. */
+    .zones{position:absolute;left:0;right:0;top:clamp(175px,25vh,220px);bottom:66px;z-index:2;display:grid;grid-template-columns:1fr 1fr;pointer-events:none}
+    .zone{display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;font-weight:900;font-size:clamp(28px,5vw,72px);letter-spacing:2px;text-shadow:0 3px 15px rgba(0,0,0,.55)}
+    .zone.true{background:var(--green);border-right:2px solid rgba(255,255,255,.55)}.zone.false{background:var(--red)}
+    .content{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;align-items:center;padding:12px 18px 10px;gap:10px;pointer-events:none}
+    .topbar,.question,.controls,.message{pointer-events:auto}
+    .topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto}
+    .brand,.counter{background:var(--panel);border:1px solid rgba(56,189,248,.38);border-radius:12px;padding:10px 15px;backdrop-filter:blur(8px);font-weight:800;box-shadow:0 5px 20px rgba(0,0,0,.16)}
+    .brand{font-size:clamp(13px,1.5vw,18px)}.counter{font-size:13px;white-space:nowrap}
+    .question{width:min(1120px,98%);flex:0 0 auto;margin:0 auto;background:var(--panel);border:1px solid rgba(56,189,248,.65);border-radius:20px;padding:clamp(12px,2vh,20px) clamp(16px,3vw,30px);text-align:center;backdrop-filter:blur(12px);box-shadow:0 12px 35px rgba(0,0,0,.3);position:relative}
+    .question-head{display:flex;align-items:center;justify-content:center;gap:16px}
+    .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#a5f3fc;margin-bottom:7px}#statement{font-size:clamp(18px,2.15vw,30px);line-height:1.27;font-weight:800;overflow-wrap:anywhere;max-width:1000px;margin:0 auto}
+    .timer{flex:0 0 auto;font-size:clamp(26px,3.2vw,42px);font-weight:900;color:#20c878;min-width:52px;margin-top:3px}
+    #status{color:#dbeafe;font-size:12px;line-height:1.35;min-height:0;margin-top:7px}
+    .explanation{display:none;text-align:left;margin-top:10px;padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.1);line-height:1.45;font-size:14px;max-height:100px;overflow:auto}.explanation.show{display:block}.answer{font-weight:900;font-size:17px;margin-bottom:5px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding:8px 12px;background:rgba(7,17,31,.94);border:1px solid rgba(56,189,248,.22);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+    button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;font-size:12px}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:#20c878;color:#062416}.secondary{background:#e2e8f0;color:#101827}.danger{background:#f05252;color:#fff}
     .message{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(4,9,18,.9)}.message.show{display:flex}.message-card{width:min(500px,100%);padding:30px;background:#151f32;border:1px solid #42516a;border-radius:22px}.message-card h2{font-size:26px;margin:0 0 12px}.message-card p{color:#cbd5e1;line-height:1.6}
-    @media(max-width:600px){.content{padding:12px;gap:12px}.topbar{align-items:flex-start}.brand,.counter{padding:10px;font-size:12px}.question{width:98%;padding:22px 16px}.zone{font-size:21px;letter-spacing:0}.controls button{padding:12px 10px;font-size:12px}}
+    @media(max-width:700px){.arena{min-height:500px}.content{padding:8px;gap:8px}.brand,.counter{padding:8px 10px;font-size:11px}.zones{top:clamp(190px,30vh,250px);bottom:112px}.zone{font-size:clamp(22px,5vw,36px);letter-spacing:0}.question{width:100%;padding:12px 12px;border-radius:15px}.eyebrow{font-size:10px;margin-bottom:5px}#statement{font-size:clamp(16px,3.8vw,22px);line-height:1.25}.timer{font-size:26px;min-width:35px}#status{font-size:11px}.explanation{font-size:12px;max-height:78px;padding:8px}.answer{font-size:14px}.controls{gap:6px;padding:7px;width:100%}.controls button{padding:10px 9px;font-size:10px;flex:1 1 auto}}
+    @media(max-height:650px) and (min-width:701px){.content{padding:7px 14px;gap:6px}.question{padding:9px 20px}#statement{font-size:clamp(17px,2.5vh,23px)}.zones{top:170px;bottom:58px}.controls{padding:5px 8px}.controls button{padding:8px 11px}}
   </style>
 </head>
 <body>
@@ -32,8 +41,10 @@
     <header class="topbar"><div class="brand">BAWOR TRUE OR FALSE</div><div class="counter" id="counter">SESI — · SOAL —/16</div></header>
     <section class="question">
       <div class="eyebrow" id="topic">Menghubungkan ke permainan...</div>
-      <div id="statement">Menyiapkan arena permainan.</div>
-      <div class="timer" id="timer">18</div>
+      <div class="question-head">
+        <div id="statement">Menyiapkan arena permainan.</div>
+        <div class="timer" id="timer">18</div>
+      </div>
       <div id="status" role="status" aria-live="polite">Memuat soal.</div>
       <div class="explanation" id="explanation"><div class="answer" id="answerText"></div><div id="explanationText"></div></div>
     </section>
